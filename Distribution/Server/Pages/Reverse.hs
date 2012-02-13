@@ -166,7 +166,7 @@ reversePackagesRender packageLink r pkgCount triples =
         | ((pkgname, total, flat), n) <- zip triples [(1::Int)..], flat /= 0 ]
 
 reversePackageSummary :: PackageId -> ReverseResource -> (Int, Int) -> (String, Html)
-reversePackageSummary pkgid r (direct, version) = (,) "Reverse dependencies" $
+reversePackageSummary pkgid r (direct, version) = (,) "Depended on by" $
   if direct == 0
     then toHtml "None"
     else toHtml [ anchor ! [href $ reverseUri r "" pkgid ] << show version

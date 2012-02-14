@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable, StandaloneDeriving, FlexibleContexts #-}
+{-# LANGUAGE CPP, DeriveDataTypeable, StandaloneDeriving, FlexibleContexts #-}
 
 -- | 'Typeable', 'Binary', 'Serialize', and 'NFData' instances for various
 -- types from Cabal, and other standard libraries.
@@ -92,15 +92,17 @@ instance NFData Response where
 instance NFData PackageName where
     rnf (PackageName pkg) = rnf pkg
 
-instance NFData Version where
-    rnf (Version cont tags) = rnf cont `seq` rnf tags
-
 instance NFData PackageIdentifier where
     rnf (PackageIdentifier name version) = rnf name `seq` rnf version
+
+#if !MIN_VERSION_deepseq(1,3,0)
+instance NFData Version where
+    rnf (Version cont tags) = rnf cont `seq` rnf tags
 
 instance NFData Day where
     rnf (ModifiedJulianDay day) = rnf day
 
 instance NFData UTCTime where
     rnf time = rnf (utctDay time) `seq` rnf (toRational $ utctDayTime time)
+#endif
 

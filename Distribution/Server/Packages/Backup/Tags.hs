@@ -8,6 +8,7 @@ import Distribution.Server.Acid (update)
 import Distribution.Server.Packages.Tag
 import Distribution.Server.Framework.BackupRestore
 
+
 import Distribution.Package
 import Distribution.Text (display)
 
@@ -15,6 +16,7 @@ import Text.CSV (CSV, Record)
 import qualified Data.Map as Map
 -- import Data.Set (Set)
 import qualified Data.Set as Set
+-- import Control.Monad.IO.Class
 import Control.Monad.State (modify)
 import Data.Function (fix)
 import Data.ByteString.Lazy.Char8 (ByteString)
@@ -39,7 +41,11 @@ importTags contents = importCSV "tags.csv" contents $ \csv ->
   where
     fromRecord (packageField:tagFields) | not (null tagFields) = do
         pkgname <- parseText "package name" packageField
-        tags <- mapM (parseText "tag") tagFields
+        -- TODO: the filtering ignores empty tags, currently necessary because
+        --       of the lack of category for uu-parsinglib. need to fix the
+        --       actual data at some point instead, as well as improve the
+        --       validation applied to the CSV
+        tags <- mapM (parseText "tag") (filter (not . null) tagFields)
         modify $ setTags pkgname (Set.fromList tags)
     fromRecord x = fail $ "Invalid tags record: " ++ show x
 

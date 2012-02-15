@@ -19,6 +19,7 @@ module Distribution.Server.Util.Happstack (
 
 import Happstack.Server
 import qualified Happstack.Server.SURI as SURI
+import Happstack.Server.Internal.Types (readM)
 import Happstack.Server.Internal.Monads
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
@@ -34,7 +35,7 @@ import System.IO.Unsafe (unsafePerformIO)
 -- method of a request. Useful until we can standardise on HTML 5.
 methodOverrideHack :: MonadIO m => ServerPartT m a -> ServerPartT m a
 methodOverrideHack rest
-  = withDataFn (lookRead "_method") $ \mthd ->
+  = withDataFn (readM "_method") $ \mthd ->
       localRq (\req -> req { rqMethod = mthd }) rest
 
 -- | For use with 'methodOverrideHack': tries to report the original method

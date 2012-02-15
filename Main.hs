@@ -37,6 +37,10 @@ import Control.Monad
          ( unless, when )
 import qualified Data.ByteString.Lazy as BS
 
+-- !!! TODO FIXME TOTAL HACK to get the module to compile !!!
+-- remove this as soon as it's imported elsewhere
+import Distribution.FastPackageDescription
+
 import Paths_hackage_server as Paths (version)
 
 -------------------------------------------------------------------------------

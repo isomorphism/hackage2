@@ -11,7 +11,7 @@ import Distribution.Server.LegacyImport.UploadLog as UploadLog (read, Entry(..))
 import Distribution.Server.Users.Types (UserId(..), UserName(UserName))
 import Distribution.Server.Util.Index as PackageIndex (read)
 import Distribution.Server.Util.Merge
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Distribution.Version
 import Distribution.Text
 import Distribution.Verbosity

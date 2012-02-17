@@ -9,14 +9,12 @@ import Distribution.Server.Packages.Tag
 import Distribution.Server.Framework.BackupRestore
 
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Distribution.Text (display)
 
 import Text.CSV (CSV, Record)
 import qualified Data.Map as Map
--- import Data.Set (Set)
 import qualified Data.Set as Set
--- import Control.Monad.IO.Class
 import Control.Monad.State (modify)
 import Data.Function (fix)
 import Data.ByteString.Lazy.Char8 (ByteString)

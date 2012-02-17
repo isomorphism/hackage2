@@ -20,11 +20,11 @@ import Distribution.Server.Packages.PackageIndex (PackageIndex)
 import Distribution.Server.Packages.State
 import Distribution.Server.Packages.Types
 import Distribution.Text
-import Distribution.Package
-import Distribution.PackageDescription
+import Distribution.FastPackageDescription
 
 import Control.Applicative ((<|>), optional, pure)
 import Data.Function (fix)
+import qualified Data.Text as T
 import qualified Data.Set as Set
 import qualified Data.ByteString.Lazy.Char8 as BS
 import Network.URI (URI(..), uriToString)
@@ -85,7 +85,7 @@ constructPackageText :: PackageIndex PkgInfo -> TextSearch
 constructPackageText = constructTextIndex . map makeEntry . PackageIndex.allPackagesByName
   where makeEntry pkgs = let desc = pkgDesc $ last pkgs
                              pkgStr = display $ packageName desc
-                         in (pkgStr, pkgStr ++ " " ++ synopsis (packageDescription desc))
+                         in (pkgStr, pkgStr ++ " " ++ T.unpack (synopsis $ packageDescription desc))
 
 
 -- Returns (list of exact matches, list of text matches)
@@ -96,7 +96,7 @@ searchFindPackage names str doTextSearch = do
     txIndex <- Cache.getCache $ packageTextIndex names
     let nameRes = lookupName str nmIndex
         textRes = if doTextSearch then searchText txIndex str else []
-    return $ (map PackageName $ Set.toList nameRes, map (PackageName . fst) textRes)
+    return $ (map (PackageName . T.pack) $ Set.toList nameRes, map (PackageName . T.pack . fst) textRes)
 
 packageFindWith :: (Maybe (String, Bool) -> ServerPart a) -> ServerPart a
 packageFindWith func = do

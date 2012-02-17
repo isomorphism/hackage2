@@ -19,7 +19,7 @@ import qualified Distribution.Server.Framework.BlobStorage as BlobStorage
 import qualified Distribution.Server.Features.BuildReports.BuildReport as BuildReport
 import Distribution.Server.Features.BuildReports.BuildReport (BuildReport)
 
-import Distribution.Package (PackageId)
+import Distribution.FastPackageDescription (PackageId)
 import Distribution.Text (Text(..))
 
 import Distribution.Server.Framework.Instances ()

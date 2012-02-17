@@ -6,7 +6,7 @@ module Distribution.Server.Features.BuildReports.State where
 import Distribution.Server.Features.BuildReports.BuildReports (BuildReportId, BuildLog, BuildReport, BuildReports, PkgBuildReports)
 import qualified Distribution.Server.Features.BuildReports.BuildReports as BuildReports
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 
 import qualified Data.Serialize as Serialize
 import Control.Monad.Reader

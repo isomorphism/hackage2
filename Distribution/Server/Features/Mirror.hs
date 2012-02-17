@@ -30,7 +30,7 @@ import Data.Time.Format (formatTime, parseTime)
 import System.Locale (defaultTimeLocale)
 
 import Control.Monad.Trans (MonadIO(..))
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Distribution.Text
 import System.FilePath ((<.>))
 import qualified Codec.Compression.GZip as GZip
@@ -118,9 +118,10 @@ initMirrorFeature env core users = do
                   -- the user to the package's maintainer group
                   -- the mirror client should probably do this itself,
                   -- if it's able (if it's a trustee).
+                  let pkg' = genFromSlow $ pkg
                   liftIO $ doMergePackage core $ PkgInfo {
-                      pkgInfoId     = packageId pkg,
-                      pkgDesc       = pkg,
+                      pkgInfoId     = packageId pkg',
+                      pkgDesc       = pkg',
                       pkgData       = CabalFileText pkgStr,
                       pkgTarball    = [(PkgTarball { pkgTarballGz = blobId,
                                                      pkgTarballNoGz = blobIdDecompressed },
@@ -169,9 +170,10 @@ initMirrorFeature env core users = do
           case parsePackageDescription . unpackUTF8 $ fileContent of
               ParseFailed err -> badRequest (toResponse $ show (locatedErrorMsg err))
               ParseOk warnings pkg -> do
+                  let pkg' = genFromSlow $ pkg
                   liftIO $ doMergePackage core $ PkgInfo {
-                      pkgInfoId     = packageId pkg,
-                      pkgDesc       = pkg,
+                      pkgInfoId     = packageId pkg',
+                      pkgDesc       = pkg',
                       pkgData       = CabalFileText fileContent,
                       pkgTarball    = [],
                       pkgUploadData = uploadData,

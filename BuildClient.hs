@@ -5,7 +5,8 @@ import Network.Browser
 import Network.URI (URI(..), URIAuth(..))
 
 import Distribution.Client
-import Distribution.Package
+import Distribution.FastPackageDescription
+-- import Distribution.Package
 import Distribution.Text
 import Distribution.Verbosity
 import Distribution.Simple.Utils hiding (intercalate)

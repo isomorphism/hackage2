@@ -56,13 +56,12 @@ import Data.List (groupBy, sortBy, find, isInfixOf)
 import Data.Monoid (Monoid(..))
 import Data.Maybe (fromMaybe)
 import Data.Typeable
+import Data.Text (Text)
+import qualified Data.Text as T
 
-import Distribution.Package
-         ( PackageName(..), PackageIdentifier(..)
-         , Package(..), packageName, packageVersion
-         , Dependency(Dependency) )
+import Distribution.FastPackageDescription
 import Distribution.Version ( withinRange )
-import Distribution.Simple.Utils (lowercase, comparing)
+import Distribution.Simple.Utils ( lowercase, comparing)
 
 -- | The collection of information about packages from one or more 'PackageDB's.
 --
@@ -309,16 +308,16 @@ lookupDependency index (Dependency name versionRange) =
 -- packages. The list of ambiguous results is split by exact package name. So
 -- it is a non-empty list of non-empty lists.
 --
-searchByName :: Package pkg => PackageIndex pkg -> String -> SearchResult [pkg]
+searchByName :: Package pkg => PackageIndex pkg -> Text -> SearchResult [pkg]
 searchByName (PackageIndex m) name =
   case [ pkgs | pkgs@(PackageName name',_) <- Map.toList m
-              , lowercase name' == lname ] of
+              , T.toLower name' == lname ] of
     []              -> None
     [(_,pkgs)]      -> Unambiguous pkgs
     pkgss           -> case find ((PackageName name==) . fst) pkgss of
       Just (_,pkgs) -> Unambiguous pkgs
       Nothing       -> Ambiguous (map snd pkgss)
-  where lname = lowercase name
+  where lname = T.toLower name
 
 data SearchResult a = None | Unambiguous a | Ambiguous [a] deriving (Show)
 
@@ -326,13 +325,13 @@ data SearchResult a = None | Unambiguous a | Ambiguous [a] deriving (Show)
 --
 -- That is, all packages that contain the given string in their name.
 --
-searchByNameSubstring :: Package pkg => PackageIndex pkg -> String -> [pkg]
+searchByNameSubstring :: Package pkg => PackageIndex pkg -> Text -> [pkg]
 searchByNameSubstring (PackageIndex m) searchterm =
   [ pkg
   | (PackageName name, pkgs) <- Map.toList m
-  , lsearchterm `isInfixOf` lowercase name
+  , lsearchterm `T.isInfixOf` T.toLower name
   , pkg <- pkgs ]
-  where lsearchterm = lowercase searchterm
+  where lsearchterm = T.toLower searchterm
 
 -- | Gets the number of packages in the index (number of names).
 indexSize :: Package pkg => PackageIndex pkg -> Int

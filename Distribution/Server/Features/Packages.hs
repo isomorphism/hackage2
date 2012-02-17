@@ -13,6 +13,8 @@ module Distribution.Server.Features.Packages (
     categorySplit,
   ) where
 
+import Control.Applicative
+
 import Distribution.Server.Acid (query)
 import Distribution.Server.Framework
 import Distribution.Server.Features.Core
@@ -28,10 +30,8 @@ import qualified Distribution.Server.Packages.PackageIndex as PackageIndex
 import qualified Distribution.Server.Framework.Cache as Cache
 import qualified Distribution.Server.Framework.ResourceTypes as Resource
 
-import Distribution.Package
-import Distribution.PackageDescription
-import Distribution.PackageDescription.Configuration (flattenPackageDescription)
-import Distribution.Version
+import Distribution.FastPackageDescription
+import Distribution.Version 
 import Distribution.Server.Packages.ModuleForest
 import Distribution.Text
 import Data.Maybe (catMaybes, fromJust)
@@ -39,6 +39,9 @@ import qualified Data.Map as Map
 import Data.Map (Map)
 import qualified Data.Foldable as Foldable
 import qualified Data.Traversable as Traversable
+import Data.Vector (Vector)
+import qualified Data.Vector as V
+import qualified Data.Text as T
 import Control.Monad (guard, liftM2)
 import Data.Time.Clock (getCurrentTime, UTCTime)
 import Data.List (sort, sortBy, partition)
@@ -98,7 +101,7 @@ initPackagesFeature serverEnv core = do
 data PackageRender = PackageRender {
     rendPkgId :: PackageIdentifier,
     rendDepends :: [[Dependency]],
-    rendExecNames :: [String],
+    rendExecNames :: Vector String,
     rendLicenseName :: String,
     rendMaintainer :: Maybe String,
     rendCategory :: [String],
@@ -140,11 +143,15 @@ doPackageRender store users info =
        return $ PackageRender
         { rendPkgId = pkgInfoId info
         , rendDepends   = flatDependencies genDesc
-        , rendExecNames = map exeName (executables flatDesc)
+        , rendExecNames = T.unpack . exeName <$> executables flatDesc
         , rendLicenseName = display (license desc) -- maybe make this a bit more human-readable
-        , rendMaintainer  = case maintainer desc of "None" -> Nothing; "none" -> Nothing; "" -> Nothing; person -> Just person
-        , rendCategory = case category desc of [] -> []; str -> categorySplit str
-        , rendRepoHeads = catMaybes (map rendRepo $ sourceRepos desc)
+        , rendMaintainer  = case T.unpack $ maintainer desc of 
+                                "None" -> Nothing; 
+                                "none" -> Nothing; 
+                                "" -> Nothing; 
+                                person -> Just person
+        , rendCategory = case T.unpack $ category desc of [] -> []; str -> categorySplit str
+        , rendRepoHeads = catMaybes (map rendRepo . V.toList $ sourceRepos desc)
         , rendModules = fmap (moduleForest . exposedModules) (library flatDesc)
         , rendHasTarball = not . null $ pkgTarball info
         , rendChangeLogUri = case changeLogRes of
@@ -159,7 +166,7 @@ doPackageRender store users info =
         guard $ repoKind r == RepoHead
         ty <- repoType r
         loc <- repoLocation r
-        return (ty, loc, r)
+        return (ty, T.unpack loc, r)
 
 categorySplit :: String -> [String]
 categorySplit xs | all isSpace xs = []
@@ -184,7 +191,7 @@ flatDependencies pkg =
     foldr reduceDisjunct [] $
     foldr intersectDisjunct head_deps $
         maybe id ((:) . fromCondTree) (condLibrary pkg) $
-        map (fromCondTree . snd) (condExecutables pkg)
+        map (fromCondTree . snd) (V.toList $ condExecutables pkg)
   where
     -- put the constrained ones first, for sorting purposes
     get_deps m = ranges ++ others
@@ -207,7 +214,7 @@ flatDependencies pkg =
     simple (l, NoUpperBound) = isMinLowerBound l
     simple _ = False
 
-    head_deps = fromDependencies (buildDepends (packageDescription pkg))
+    head_deps = fromDependencies (V.toList $ buildDepends (packageDescription pkg))
 
     fromDependencies :: [Dependency] -> Disjunct
     fromDependencies = foldr addDep unitDisjunct

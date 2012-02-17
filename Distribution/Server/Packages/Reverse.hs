@@ -10,8 +10,7 @@ import Distribution.Server.Packages.Preferred
 import Distribution.Server.Packages.PackageIndex (PackageIndex)
 import qualified Distribution.Server.Packages.PackageIndex as PackageIndex
 
-import Distribution.Package
-import Distribution.PackageDescription
+import Distribution.FastPackageDescription
 import Distribution.Version
 
 import Data.Acid (Query, Update, makeAcidic)
@@ -23,6 +22,7 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Set (Set)
 import qualified Data.Set as Set
+import qualified Data.Vector as V
 
 import Data.STRef
 import Control.Monad.ST
@@ -225,8 +225,9 @@ selectVersions range versions= filter (flip withinRange range) versions
 getAllDependencies :: PkgInfo -> CombinedDeps
 getAllDependencies pkg = 
     let desc = pkgDesc pkg
-    in Map.fromListWith unionVersionRanges $ toDepsList (maybeToList $ condLibrary desc)
-                                          ++ toDepsList (map snd $ condExecutables desc)
+    in Map.fromListWith unionVersionRanges 
+       $ toDepsList (maybeToList $ condLibrary desc)
+         ++ toDepsList (V.toList . fmap snd $ condExecutables desc)
   where toDepsList :: [CondTree v [Dependency] a] -> [(PackageName, VersionRange)]
         toDepsList l = [ (p, v) | Dependency p v <- concatMap harvestDependencies l ]
 

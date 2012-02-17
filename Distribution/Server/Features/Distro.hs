@@ -21,7 +21,7 @@ import Distribution.Server.Util.Parse (unpackUTF8)
 import Data.List (intercalate)
 import Distribution.Text (display, simpleParse)
 import Control.Monad
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Text.CSV (parseCSV)
 import Data.Version (showVersion)
 

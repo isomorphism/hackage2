@@ -212,6 +212,8 @@ executable hackage-mirror
     time,     old-locale, random,
     tar,      zlib,
     network,  HTTP >= 4000.1.3,
+    vector     == 0.9.*,
+    text       == 0.11.*,
     Cabal,
     --TODO: eliminate:
     safecopy, cereal, binary, mtl
@@ -237,6 +239,8 @@ executable hackage-build
     tar,      zlib,
     network,  HTTP,
     Cabal,
+    vector     == 0.9.*,
+    text       == 0.11.*,
     --TODO: eliminate:
     safecopy, cereal, binary, mtl,
     -- Runtime dependency only:

@@ -4,23 +4,27 @@
 
 module Distribution.Server.Packages.ModuleForest ( ModuleForest, ModuleTree(..), moduleForest ) where
 
-import Distribution.ModuleName ( ModuleName, components )
+import Data.Vector (Vector)
+import qualified Data.Vector as V
+import Data.Text (Text)
+import qualified Data.Text as T
+import Distribution.Compact.ModuleName ( ModuleName, components )
 
 --------------------------------------------------------------------------------
 
 type ModuleForest = [ModuleTree]
 
-data ModuleTree = Node String       -- Part of module name
+data ModuleTree = Node Text         -- Part of module name
                        Bool         -- Is this an existing module?
                        ModuleForest -- Sub modules
     deriving (Show, Eq)
 
 --------------------------------------------------------------------------------
 
-moduleForest :: [ModuleName] -> ModuleForest
-moduleForest = foldr (addToForest . components) []
+moduleForest :: Vector ModuleName -> ModuleForest
+moduleForest = V.foldr (addToForest . V.toList . components) []
 
-addToForest :: [String] -> ModuleForest -> ModuleForest
+addToForest :: [Text] -> ModuleForest -> ModuleForest
 addToForest [] ts = ts
 addToForest ss [] = mkSubTree ss
 addToForest s1ss@(s1:ss) (t@(Node s2 isModule subs) : ts)
@@ -28,7 +32,7 @@ addToForest s1ss@(s1:ss) (t@(Node s2 isModule subs) : ts)
   | s1 == s2  = Node s2 (isModule || null ss) (addToForest ss subs) : ts
   | otherwise = mkSubTree s1ss ++ t : ts
 
-mkSubTree :: [String] -> ModuleForest
+mkSubTree :: [Text] -> ModuleForest
 mkSubTree []     = []
 mkSubTree (s:ss) = [Node s (null ss) (mkSubTree ss)]
 

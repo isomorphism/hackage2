@@ -8,7 +8,7 @@ import Distribution.Server.Acid (update)
 import Distribution.Server.Packages.Downloads
 import Distribution.Server.Framework.BackupRestore
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Distribution.Text (display)
 import Distribution.Version
 

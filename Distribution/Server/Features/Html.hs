@@ -46,14 +46,15 @@ import Text.XHtml.Strict
 import qualified Text.XHtml.Strict as XHtml
 import Text.XHtml.Table (simpleTable)
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Distribution.Version
 import Distribution.Text (display)
-import Distribution.PackageDescription
 import Data.List (intercalate, intersperse, insert, sortBy)
 import Data.Function (on)
 import Control.Monad (forM)
 import Control.Monad.Trans (MonadIO, liftIO)
+import qualified Data.Text as T
+import qualified Data.Vector as V
 import qualified Data.Map as Map
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -538,7 +539,7 @@ serveCandidatesPage _ check _ = do
                 , toHtml ": "
                 , toHtml $ intersperse (toHtml ", ") $ flip map pkgs $ \pkg ->
                      anchor ! [href $ candidateUri check "" (packageId pkg)] << display (packageVersion pkg)
-                , toHtml $ ". " ++ description desc
+                , toHtml $ ". " ++ T.unpack (description desc)
                 ]
 
 servePackageCandidates :: CoreResource -> CheckResource -> Resource -> DynamicPath -> ServerPart Response

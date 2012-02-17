@@ -31,7 +31,7 @@ import qualified Distribution.Server.Framework.BlobStorage as BlobStorage
 import Distribution.Server.Framework.BlobStorage (BlobStorage)
 import Distribution.Server.Packages.Types (CabalFileText(..), cabalFileString, PkgInfo(..), PkgTarball(..), pkgUploadUser)
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Distribution.PackageDescription.Parse (parsePackageDescription)
 import Distribution.ParseUtils (ParseResult(..), locatedErrorMsg)
 import Distribution.Text (display)
@@ -68,7 +68,7 @@ newPkgInfo pkgid (cabalFilePath, cabalFile) (UploadLog.Entry time user _) _ user
 
       ParseOk _ pkg   -> return (PkgInfo {
         pkgInfoId     = pkgid,
-        pkgDesc       = pkg,
+        pkgDesc       = genFromSlow $ pkg,
         pkgData       = cabalFile,
         pkgTarball    = [],
         pkgUploadData = (time, uid),

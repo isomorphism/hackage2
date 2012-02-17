@@ -27,9 +27,7 @@ import Distribution.Server.Packages.Reverse
 import Distribution.Server.Packages.Downloads
 import Distribution.Server.Util.Histogram
 
-import Distribution.Package
-import Distribution.PackageDescription
-import Distribution.PackageDescription.Configuration
+import Distribution.FastPackageDescription
 
 import Control.Concurrent
 import Control.Monad (forM_, forever)
@@ -38,6 +36,8 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Set (Set)
 import qualified Data.Set as Set
+import qualified Data.Text as T
+import qualified Data.Vector as V
 
 data ListFeature = ListFeature {
     itemCache :: Cache.Cache (Map PackageName PackageItem),
@@ -160,12 +160,12 @@ updateDescriptionItem :: GenericPackageDescription -> PackageItem -> PackageItem
 updateDescriptionItem genDesc item = 
     let desc = flattenPackageDescription genDesc
     in item {
-        itemDesc = synopsis desc,
+        itemDesc = T.unpack $ synopsis desc,
         -- This checks if the library is buildable. However, since
         -- desc is flattened, we might miss some flags. Perhaps use the
         -- CondTree instead.
         itemHasLibrary = hasLibs desc,
-        itemNumExecutables = length . filter (buildable . buildInfo) $ executables desc
+        itemNumExecutables = length . filter (buildable . buildInfo) . V.toList $ executables desc
     }
 
 updateTagItem :: Set Tag -> PackageItem -> PackageItem

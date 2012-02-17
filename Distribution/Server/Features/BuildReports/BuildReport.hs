@@ -29,8 +29,6 @@ import Distribution.Package
          ( PackageIdentifier )
 import Distribution.PackageDescription
          ( FlagName(..), FlagAssignment )
---import Distribution.Version
---         ( Version )
 import Distribution.System
          ( OS, Arch )
 import Distribution.Compiler

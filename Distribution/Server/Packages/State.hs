@@ -6,7 +6,7 @@ module Distribution.Server.Packages.State where
 import Distribution.Server.Framework.Instances ()
 import Distribution.Server.Users.State ()
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Distribution.Server.Packages.PackageIndex (PackageIndex)
 import qualified Distribution.Server.Packages.PackageIndex as PackageIndex
 import Distribution.Server.Packages.Types (PkgInfo(..), CandPkgInfo(..), pkgUploadUser, pkgUploadTime)

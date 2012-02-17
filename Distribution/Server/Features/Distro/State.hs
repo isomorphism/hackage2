@@ -10,7 +10,7 @@
 
 module Distribution.Server.Features.Distro.State where
 
-import Distribution.Package (PackageName)
+import Distribution.FastPackageDescription (PackageName)
 
 import qualified Distribution.Server.Features.Distro.Distributions as Dist
 import Distribution.Server.Features.Distro.Distributions

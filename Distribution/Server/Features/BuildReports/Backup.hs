@@ -20,7 +20,7 @@ import Distribution.Server.Framework.BackupDump
 import Distribution.Server.Framework.BackupRestore
 import Distribution.Server.Util.Parse (unpackUTF8)
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Distribution.Text (display, simpleParse)
 import Distribution.Version
 

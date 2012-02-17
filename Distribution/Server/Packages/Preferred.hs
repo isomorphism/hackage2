@@ -5,7 +5,7 @@ module Distribution.Server.Packages.Preferred where
 
 import Distribution.Server.Framework.Instances ()
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Distribution.Version
 
 import Data.Acid  (Query, Update, makeAcidic)

@@ -2,20 +2,22 @@
 
 module Distribution.Server.Pages.Index (packageIndex) where
 
+import Control.Applicative
 import Distribution.Server.Pages.Template	( hackagePage )
 
-import Distribution.Package
-import Distribution.PackageDescription
-import Distribution.PackageDescription.Configuration
-				( flattenPackageDescription )
+import Distribution.FastPackageDescription
 import qualified Distribution.Server.Packages.PackageIndex as PackageIndex
 import Distribution.Server.Packages.Types (PkgInfo(..))
 import Distribution.Simple.Utils (comparing, equating)
-import Distribution.ModuleName (toFilePath)
+import Distribution.Compact.ModuleName (toFilePath)
 
 import Text.XHtml.Strict hiding ( p, name )
 import qualified Text.XHtml.Strict as XHtml ( name )
 
+import Data.Vector (Vector)
+import qualified Data.Vector as V
+import Data.Text (Text)
+import qualified Data.Text as T
 import Data.Char (toLower, toUpper, isSpace)
 import Data.List (intersperse, sortBy, groupBy, nub, maximumBy)
 
@@ -27,7 +29,7 @@ packageIndex = formatPkgGroups
                       . maximumBy (comparing packageVersion))
                  . PackageIndex.allPackagesByName
 
-data Category = Category String | NoCategory
+data Category = Category Text | NoCategory
 	deriving (Eq, Ord, Show)
 
 -- Packages, grouped by category and ordered by name with each category.
@@ -56,19 +58,19 @@ formatPkgGroups pkgs = hackagePage "packages by category" docBody
 		(anchor ! [href ("#" ++ catLabel catName)] << catName) +++
 		spaceHtml +++
 		toHtml ("(" ++ show (length sub_pkgs) ++ ")")
-	  where catName = categoryName cat
+	  where catName = T.unpack $ categoryName cat
 	cat_pkgs = groupOnFstBy normalizeCategory $ [(capitalize cat, pkg) |
 			pkg <- pkgs, cat <- categories pkg]
-	sortKey pkg = map toLower $ unPackageName $ pkgName $ package pkg
+	sortKey pkg = T.toLower $ unPackageName $ pkgName $ package pkg
 	formatCategory cat =
 		h3 ! [theclass "category"] <<
 			anchor ! [XHtml.name (catLabel catName)] << catName
-	  where catName = categoryName cat
+	  where catName = T.unpack $ categoryName cat
 	catLabel cat = "cat:" ++ cat
 	categoryName (Category cat) = cat
-	categoryName NoCategory = "Unclassified"
+	categoryName NoCategory = T.pack "Unclassified"
 	capitalize (Category s) =
-		Category (unwords [toUpper c : cs | (c:cs) <- words s])
+		Category (T.unwords . map (\w -> T.toUpper (T.take 1 w) `T.append`  T.drop 1 w) . T.words $ s)
 	capitalize NoCategory = NoCategory
 
 formatPkgList :: [PackageDescription] -> Html
@@ -77,44 +79,44 @@ formatPkgList pkgs = ulist ! [theclass "packages"] << map formatPkg pkgs
 formatPkg :: PackageDescription -> Html
 formatPkg pkg = li << (pkgLink : toHtml (" " ++ ptype) : defn)
   where pname = pkgName (package pkg)
-	pkgLink = anchor ! [href (packageNameURL pname)] << unPackageName pname
+	pkgLink = anchor ! [href (packageNameURL pname)] << T.unpack (unPackageName pname)
 	defn
-	  | null (synopsis pkg) = []
-	  | otherwise = [toHtml (": " ++ trim (synopsis pkg))]
+	  | T.null (synopsis pkg) = []
+	  | otherwise = [toHtml (": " ++ T.unpack (trim $ synopsis pkg))]
 	ptype
-	  | null (executables pkg) = "library"
+	  | V.null (executables pkg) = "library"
 	  | hasLibs pkg = "library and " ++ programs
 	  | otherwise = programs
 	  where programs
-		  | length (executables pkg) > 1 = "programs"
+		  | V.length (executables pkg) > 1 = "programs"
 		  | otherwise = "program"
 	trim s
-	  | length s < 90 = s
-	  | otherwise = reverse (dropWhile (/= ',') (reverse (take 76 s))) ++ " ..."
+	  | T.length s < 90 = s
+	  | otherwise = (T.dropWhileEnd (/= ',') . T.take 76 $ s) `T.append` T.pack " ..."
 
 categories :: PackageDescription -> [Category]
 categories pkg
-  | not (null cats) && (cats `notElem` blacklist) = split cats
+  | not (T.null cats) && (cats `notElem` blacklist) = split cats
   | not (null top_level_nodes) && length top_level_nodes < 3 &&
 	all (`elem` allocatedTopLevelNodes) top_level_nodes =
-	map Category top_level_nodes
+	map (Category . T.pack) top_level_nodes
   | otherwise = [NoCategory]
   where cats = trim (category pkg)
 	-- trim will not be necessary with future releases of cabal
-	trim = reverse . dropWhile isSpace . reverse
-	split cs = case break (== ',') cs of
-		(front, _:back) ->
-			Category front : split (dropWhile isSpace back)
-		(front, []) -> [Category front]
+	trim = T.dropWhileEnd isSpace
+	split cs = let (front, back) = T.break (== ',') cs
+               in if T.null back 
+                  then [Category front]
+                  else Category front : split (T.dropWhile isSpace $ T.drop 1 back)
 	-- if no category specified, use top-level of module hierarchy
 	top_level_nodes =
-		maybe [] (nub . map (takeWhile (/= '.') . toFilePath) . exposedModules)
+		maybe [] (nub . map (takeWhile (/= '.') . toFilePath) . V.toList . exposedModules)
 		(library pkg)
 
 -- categories we ignore
-blacklist :: [String]
-blacklist = ["Application", "Foreign binding", "Tool", "Type", "Various",
-	"Unclassified"]
+blacklist :: [Text]
+blacklist = T.pack <$> [ "Application", "Foreign binding", "Tool", "Type"
+                       , "Various", "Unclassified"]
 
 groupOnFstBy :: (Ord a, Ord c) => (a -> c) -> [(a, b)] -> [(a, [b])]
 groupOnFstBy f xys = [(x, y : map snd xys') |
@@ -122,7 +124,7 @@ groupOnFstBy f xys = [(x, y : map snd xys') |
   where sortKey (x, _) = (f x, x)
 
 normalizeCategory :: Category -> Category
-normalizeCategory (Category n) = Category (map toLower n)
+normalizeCategory (Category n) = Category (T.toLower n)
 normalizeCategory NoCategory = NoCategory
 
 allocatedTopLevelNodes :: [String]
@@ -132,7 +134,7 @@ allocatedTopLevelNodes = [
 	"Network", "Numeric", "Prelude", "Sound", "System", "Test", "Text"]
 
 packageNameURL :: PackageName -> URL
-packageNameURL pkg = "/package/" ++ unPackageName pkg
+packageNameURL pkg = "/package/" ++ T.unpack (unPackageName pkg)
 
-unPackageName :: PackageName -> String
+unPackageName :: PackageName -> Text
 unPackageName (PackageName name) = name

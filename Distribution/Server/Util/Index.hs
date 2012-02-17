@@ -16,12 +16,14 @@ module Distribution.Server.Util.Index (
     write,
   ) where
 
+import Data.Text (Text)
+import qualified Data.Text as T
 import qualified Codec.Archive.Tar       as Tar
          ( read, write, Entries(..) )
 import qualified Codec.Archive.Tar.Entry as Tar
          ( Entry(..), entryPath, fileEntry, toTarPath )
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Distribution.Version
 import Distribution.Server.Packages.PackageIndex (PackageIndex)
 import qualified Distribution.Server.Packages.PackageIndex as PackageIndex
@@ -56,7 +58,7 @@ read mkPackage indexFileContent = collect [] entries
       | [pkgname,versionStr,_] <- splitDirectories (normalise (Tar.entryPath e))
       , Just version <- simpleParse versionStr
       , [] <- versionTags version
-      = let pkgid = PackageIdentifier (PackageName pkgname) version
+      = let pkgid = PackageIdentifier (PackageName . T.pack $ pkgname) version
          in Just (mkPackage pkgid e)
     entry _ = Nothing
 
@@ -80,6 +82,6 @@ write externalPackageRep updateEntry extras =
       where
         Right tarPath = Tar.toTarPath False fileName
         PackageName name = packageName pkg
-        fileName = name </> display (packageVersion pkg)
-                        </> name <.> "cabal"
+        fileName = T.unpack name </> display (packageVersion pkg)
+                                 </> T.unpack name <.> "cabal"
 

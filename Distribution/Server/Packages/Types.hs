@@ -13,15 +13,14 @@
 -----------------------------------------------------------------------------
 module Distribution.Server.Packages.Types where
 
+import Control.Applicative
+
 import Distribution.Server.Users.Types (UserId)
 import Distribution.Server.Framework.BlobStorage (BlobId)
 import Distribution.Server.Framework.Instances ()
 import Distribution.Server.Util.Parse (unpackUTF8)
 
-import Distribution.Package
-         ( PackageIdentifier(..), Package(..) )
-import Distribution.PackageDescription
-         ( GenericPackageDescription(..))
+import Distribution.FastPackageDescription 
 import Distribution.PackageDescription.Parse
          ( parsePackageDescription, ParseResult(..) )
 
@@ -108,7 +107,7 @@ instance Serialize PkgInfo where
     updata  <- Serialize.get
     return PkgInfo {
         pkgInfoId = infoId,
-        pkgDesc   = desc,
+        pkgDesc   = genFromSlow $ desc,
         pkgUploadData = updata,
         pkgDataOld    = old,
         pkgTarball    = tarball,

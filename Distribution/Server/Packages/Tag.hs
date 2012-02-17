@@ -9,7 +9,7 @@ import Distribution.Server.Framework.Instances ()
 import qualified Distribution.ParseUtils   as Parse
 import qualified Distribution.Compat.ReadP as Parse
 import Distribution.Text
-import Distribution.Package
+import Distribution.FastPackageDescription
 import qualified Text.PrettyPrint as Disp
 
 import Data.Acid (Query, Update, makeAcidic)

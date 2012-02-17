@@ -16,7 +16,7 @@ import Distribution.Server.Users.Group (UserList(..))
 import Distribution.Server.Framework.BackupDump
 import Distribution.Server.Framework.BackupRestore
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Distribution.Text
 import Data.Version
 import Text.CSV (CSV)

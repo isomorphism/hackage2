@@ -15,7 +15,7 @@ import Distribution.Server.Features.Core
 import Distribution.Server.Packages.Platform
 import Data.Function
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Distribution.Version
 import Distribution.Text
 

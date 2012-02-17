@@ -42,8 +42,7 @@ import Control.Monad (liftM2, when)
 import Control.Monad.Trans (MonadIO(..))
 import Data.Function (fix)
 import Data.ByteString.Lazy.Char8 (ByteString)
-import Distribution.Package
-import Distribution.PackageDescription (GenericPackageDescription)
+import Distribution.FastPackageDescription
 import Distribution.Text (display, simpleParse)
 import qualified Codec.Compression.GZip as GZip
 
@@ -240,7 +239,7 @@ extractPackage processFunc storage =
                 case Upload.unpackPackage name content' of
                   Left err -> return . Left $ ErrorResponse 400 "Invalid package" [MText err]
                   Right ((pkg, pkgStr), warnings) -> do
-                    let uresult = UploadResult pkg pkgStr warnings
+                    let uresult = UploadResult (genFromSlow pkg) pkgStr warnings
                     res <- processFunc uid uresult
                     case res of
                         Nothing ->

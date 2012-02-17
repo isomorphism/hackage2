@@ -23,7 +23,7 @@ import Distribution.Server.Framework.BlobStorage (BlobStorage)
 import qualified Distribution.Server.Framework.BlobStorage as BlobStorage
 import qualified Distribution.Server.Packages.PackageIndex as PackageIndex
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Distribution.PackageDescription.Parse (parsePackageDescription)
 import Distribution.ParseUtils (ParseResult(..), locatedErrorMsg)
 import Distribution.Text
@@ -86,7 +86,7 @@ partialToFullPkg (pkgId, partial) = do
         ParseOk _ parsePkg -> do
             return $ PkgInfo {
                 pkgInfoId = pkgId,
-                pkgDesc = parsePkg,
+                pkgDesc = genFromSlow $ parsePkg,
                 pkgData = cabal,
                 pkgTarball = descendUploadTimes tarballDex,
                 pkgDataOld = cabalOld,

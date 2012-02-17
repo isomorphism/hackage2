@@ -18,7 +18,7 @@ import Distribution.Server.Packages.Backup.Downloads
 import Distribution.Server.Util.Histogram
 import qualified Distribution.Server.Framework.Cache as Cache
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 
 import Data.Time.Clock
 import Control.Arrow (second)
@@ -26,8 +26,6 @@ import Control.Monad (forever)
 import Control.Concurrent.Chan
 import Control.Concurrent (forkIO)
 import Data.Function (fix)
---import Data.List (sortBy)
---import Data.Ord (comparing)
 import qualified Data.Map as Map
 import Control.Monad.Trans (MonadIO)
 

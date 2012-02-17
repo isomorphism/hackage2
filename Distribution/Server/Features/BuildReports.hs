@@ -22,7 +22,7 @@ import qualified Distribution.Server.Framework.BlobStorage as BlobStorage
 import Distribution.Server.Framework.BlobStorage (BlobStorage)
 
 import Distribution.Text
-import Distribution.Package
+import Distribution.FastPackageDescription
 
 import Control.Monad.Trans
 import Control.Monad (mzero)

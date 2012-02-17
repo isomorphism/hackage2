@@ -31,7 +31,7 @@ import Distribution.Server.Features.Distro.Types
 import qualified Distribution.Server.Users.Group as Group
 import Distribution.Server.Users.Group (UserList)
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 
 import Data.List (foldl')
 import Data.Maybe (fromJust, fromMaybe)

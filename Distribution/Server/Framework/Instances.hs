@@ -10,10 +10,10 @@ module Distribution.Server.Framework.Instances () where
 
 import Distribution.Text
 
-import Distribution.Package (PackageIdentifier(..), PackageName(..))
-import Distribution.PackageDescription (GenericPackageDescription(..))
+import Distribution.FastPackageDescription (PackageIdentifier(..), PackageName(..), GenericPackageDescription(..))
 import Distribution.Version (Version(..), VersionRange(..))
 
+import qualified Data.Text as T
 import Data.Typeable
 import Data.Time.Clock (UTCTime(..))
 import Data.Time.Calendar (Day(..))
@@ -23,7 +23,7 @@ import Control.DeepSeq
 import qualified Data.Serialize as Serialize
 import Data.Serialize (Serialize)
 import Data.SafeCopy (SafeCopy(getCopy, putCopy), contain)
-
+import Text.XHtml.Strict (HTML(..))
 import Happstack.Server
 
 import qualified Data.ByteString.Lazy.Char8 as BS
@@ -34,6 +34,10 @@ deriving instance Typeable PackageIdentifier
 deriving instance Typeable GenericPackageDescription
 deriving instance Typeable PackageName
 deriving instance Typeable VersionRange
+
+instance HTML T.Text where
+    toHtml = toHtml . T.unpack
+    toHtmlFromList = toHtmlFromList . map T.unpack
 
 instance Serialize PackageIdentifier where
   put = Serialize.put . show
@@ -94,6 +98,7 @@ instance NFData PackageName where
 
 instance NFData PackageIdentifier where
     rnf (PackageIdentifier name version) = rnf name `seq` rnf version
+
 
 #if !MIN_VERSION_deepseq(1,3,0)
 instance NFData Version where

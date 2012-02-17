@@ -12,8 +12,8 @@ import Data.Set (Set)
 import qualified Data.Set as Set
 import Data.Typeable
 
+import Distribution.FastPackageDescription
 import Distribution.Server.Framework.Instances ()
-import Distribution.Package
 import Distribution.Version
 
 import Control.Monad.Reader (ask, asks)

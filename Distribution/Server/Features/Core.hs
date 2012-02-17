@@ -64,9 +64,8 @@ import qualified Data.ByteString.Lazy.Char8 as BS
 import Data.ByteString.Lazy.Char8 (ByteString)
 
 import Distribution.Text (display)
-import Distribution.Package
 import Distribution.Version (Version(..))
-
+import Distribution.FastPackageDescription
 
 data CoreFeature = CoreFeature {
     featureInterface :: HackageFeature,

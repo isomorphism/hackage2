@@ -15,7 +15,7 @@ import qualified Distribution.Server.Util.ServeTarball as TarIndex
 import Data.TarIndex (TarIndex)
 
 import Distribution.Text
-import Distribution.Package
+import Distribution.FastPackageDescription
 
 import Control.Monad.Trans
 

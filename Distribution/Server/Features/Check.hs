@@ -41,7 +41,7 @@ import Distribution.Server.Packages.PackageIndex (PackageIndex)
 import qualified Distribution.Server.Framework.ResourceTypes as Resource
 
 import Distribution.Text
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Data.Version
 import Text.XHtml.Strict (unordList, h3, (<<), toHtml)
 import Data.Function (fix)

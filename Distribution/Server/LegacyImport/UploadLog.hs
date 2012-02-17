@@ -17,11 +17,11 @@ module Distribution.Server.LegacyImport.UploadLog (
     group,
   ) where
 
+import Control.Applicative
 import Distribution.Server.Users.Types
          ( UserName )
 
-import Distribution.Package
-         ( PackageIdentifier(..))
+import Distribution.FastPackageDescription
 import Distribution.Text
          ( Text(..), simpleParse )
 import Distribution.ParseUtils ( parsePackageNameQ )
@@ -57,7 +57,7 @@ instance Text Entry where
     Parse.skipSpaces
     user <- parse
     Parse.skipSpaces
-    pkg  <- parsePackageNameQ
+    pkg  <- pkgNameFromSlow <$> parsePackageNameQ
     Parse.skipSpaces
     ver  <- parse
     let pkgid = PackageIdentifier pkg ver

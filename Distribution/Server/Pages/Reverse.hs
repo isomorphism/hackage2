@@ -10,7 +10,7 @@ import Distribution.Server.Features.ReverseDependencies
 import Distribution.Server.Packages.Reverse
 import Distribution.Server.Packages.Preferred
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Distribution.Text (display)
 import Distribution.Version
 

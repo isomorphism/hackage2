@@ -16,8 +16,7 @@ import Distribution.Server.Pages.Package.HaddockHtml
 import Distribution.Server.Packages.ModuleForest
 import Distribution.Server.Users.Types (userStatus, userName, isActive)
 
-import Distribution.Package
-import Distribution.PackageDescription as P
+import Distribution.FastPackageDescription as P
 import Distribution.Simple.Utils ( cabalVersion )
 import Distribution.Version (Version (..), VersionRange (..))
 import Distribution.Text        (display)
@@ -28,6 +27,8 @@ import Data.List                (intersperse, intercalate)
 import System.FilePath.Posix    ((</>), (<.>))
 import System.Locale            (defaultTimeLocale)
 import Data.Time.Format         (formatTime)
+import qualified Data.Text as T
+import qualified Data.Vector as V
 
 packagePage :: PackageRender -> [Html] -> [Html] -> [(String, Html)] -> [(String, Html)] -> Maybe URL -> [Html]
 packagePage render headLinks top sections bottom docURL =
@@ -43,7 +44,7 @@ packagePage render headLinks top sections bottom docURL =
 			li << anchor ! [href "/"] << "hackageDB",
 		paragraph ! [theclass "caption"] << docTitle]
 
-    docTitle = display (packageName pkgid) ++ case synopsis (rendOther render) of
+    docTitle = display (packageName pkgid) ++ case T.unpack (synopsis $ rendOther render) of
         "" -> ""
         short  -> ": " ++ short
 
@@ -78,7 +79,7 @@ packagePage render headLinks top sections bottom docURL =
 -- | Body of the package page
 pkgBody :: PackageRender -> [(String, Html)] -> [Html]
 pkgBody render sections =
-    prologue (description $ rendOther render) ++
+    prologue (T.unpack . description $ rendOther render) ++
     propertySection sections
 
 prologue :: String -> [Html]
@@ -193,9 +194,9 @@ renderFields render = [
         ("Maintainer",  maintainField $ rendMaintainer render),
         ("Stability",   toHtml $ stability desc),
         ("Category",    commaList . map categoryField $ rendCategory render), 
-        ("Home page",   linkField $ homepage desc),
-        ("Bug tracker", linkField $ bugReports desc),
-        ("Executables", commaList . map toHtml $ rendExecNames render),
+        ("Home page",   linkField . T.unpack $ homepage desc),
+        ("Bug tracker", linkField . T.unpack $ bugReports desc),
+        ("Executables", commaList . map toHtml . V.toList $ rendExecNames render),
         ("Upload date", toHtml $ showTime utime),
         ("Uploaded by", userField)
       ]
@@ -226,7 +227,7 @@ renderModuleForest mb_url forest =
       renderForest pathRev ts = myUnordList $ map renderTree ts
           where
             renderTree (Node s isModule subs) =
-                    ( if isModule then moduleEntry newPath else italics << s )
+                    ( if isModule then moduleEntry $ fmap T.unpack newPath else italics << s )
                 +++ renderForest newPathRev subs
                 where
                   newPathRev = s:pathRev

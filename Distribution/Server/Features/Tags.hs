@@ -28,16 +28,15 @@ import Distribution.Server.Framework.BackupDump
 import Distribution.Server.Packages.Backup.Tags
 import qualified Distribution.Server.Framework.Cache as Cache
 
+import Distribution.FastPackageDescription
 import Distribution.Text
-import Distribution.Package
-import Distribution.PackageDescription
-import Distribution.PackageDescription.Configuration
 import Distribution.License
 
 import Data.Set (Set)
 import qualified Data.Set as Set
 import Data.Map (Map)
 import qualified Data.Map as Map
+import qualified Data.Text as T
 import Data.Function (fix)
 import Data.List (foldl')
 import Data.Char (toLower)
@@ -166,7 +165,7 @@ constructImmutableTagIndex = foldl' addToTags emptyPackageTags . PackageIndex.al
 
 -- These are constructed when a package is uploaded/on startup
 constructCategoryTags :: PackageDescription -> [Tag]
-constructCategoryTags = map (tagify . map toLower) . fillMe . categorySplit . category
+constructCategoryTags = map (tagify . map toLower) . fillMe . categorySplit . T.unpack . category
   where
     fillMe [] = ["unclassified"]
     fillMe xs = xs

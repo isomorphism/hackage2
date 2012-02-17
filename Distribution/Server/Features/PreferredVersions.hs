@@ -33,7 +33,7 @@ import Distribution.Server.Packages.Tag
 import Distribution.Server.Packages.State
 import Distribution.Server.Packages.Types
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Distribution.Version
 import Distribution.Text
 

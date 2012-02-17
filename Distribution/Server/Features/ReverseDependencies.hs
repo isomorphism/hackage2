@@ -29,7 +29,7 @@ import Distribution.Server.Packages.Reverse
 import Distribution.Server.Packages.Preferred
 import qualified Distribution.Server.Framework.Cache as Cache
 
-import Distribution.Package
+import Distribution.FastPackageDescription
 import Distribution.Text (display)
 import Distribution.Version
 

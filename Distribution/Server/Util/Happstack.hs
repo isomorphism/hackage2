@@ -35,7 +35,7 @@ import System.IO.Unsafe (unsafePerformIO)
 -- method of a request. Useful until we can standardise on HTML 5.
 methodOverrideHack :: MonadIO m => ServerPartT m a -> ServerPartT m a
 methodOverrideHack rest
-  = withDataFn (readM "_method") $ \mthd ->
+  = withDataFn (readM =<< look "_method") $ \mthd ->
       localRq (\req -> req { rqMethod = mthd }) rest
 
 -- | For use with 'methodOverrideHack': tries to report the original method
